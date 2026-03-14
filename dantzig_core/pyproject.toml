@@ -1,0 +1,26 @@
+[build-system]
+requires = ["maturin>=1.0,<2.0"]
+build-backend = "maturin"
+
+[project]
+name = "dantzig_core"
+requires-python = ">=3.13"
+description = "Rust core for dantzigpy — LP solver built with maturin and PyO3"
+license = { text = "MIT" }
+version = "0.1.0"
+
+[dependency-groups]
+dev = ["maturin"]
+
+[tool.maturin]
+python-source = "python"
+module-name = "dantzig_core._dantzig_core"
+
+[tool.uv]
+cache-keys = [
+    { file = "pyproject.toml" },
+    { file = "Cargo.toml" },
+    { file = "Cargo.lock" },
+    { file = "**/*.rs" },
+    { file = "python/**/*.py" },
+]

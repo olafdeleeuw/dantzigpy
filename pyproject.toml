@@ -1,0 +1,40 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "dantzigpy"
+version = "0.1.0"
+requires-python = ">=3.13"
+description = "Linear programming in Python, powered by a Rust backend"
+license = { text = "MIT" }
+authors = [
+    { name = "Olaf de Leeuw", email = "olaf@dataworkz.nl" },
+]
+dependencies = [
+    "dantzig_core",
+]
+
+[project.urls]
+Homepage = "https://github.com/olafdeleeuw/dantzigpy"
+Repository = "https://github.com/olafdeleeuw/dantzigpy"
+
+[tool.hatch.build.targets.wheel]
+packages = ["dantzigpy"]
+
+[dependency-groups]
+dev = ["ty>=0.0.23"]
+
+[tool.uv.workspace]
+members = ["dantzig_core"]
+
+[tool.uv.sources]
+dantzig_core = { workspace = true, editable = false }
+
+[tool.ty.environment]
+python-version = "3.13"
+
+[tool.ty.analysis]
+# dantzig_core._dantzig_core is the compiled Rust extension; it only exists
+# after `maturin develop` is run inside dantzig_core/.
+allowed-unresolved-imports = ["dantzig_core._dantzig_core"]
