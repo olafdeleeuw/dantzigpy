@@ -1,8 +1,9 @@
-/// Placeholder LP solver.
+/// Placeholder LP solver using the Simplex method.
 ///
 /// # Returns
+///
 /// A placeholder `f64` value. This will be replaced by a real
-/// linear programming solver in future versions.
+/// Simplex algorithm implementation in a future version.
 pub fn solve_lp() -> f64 {
     42.0
 }

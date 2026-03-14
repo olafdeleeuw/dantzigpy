@@ -1,8 +1,7 @@
 [workspace]
 resolver = "2"
 members = [
-    "crates/*",
-    "py-dantzigpy",
+    "dantzig_core",
 ]
 
 [workspace.package]
@@ -13,5 +12,4 @@ authors = ["Olaf de Leeuw <olaf@dataworkz.nl>"]
 repository = "https://github.com/olafdeleeuw/dantzigpy"
 
 [workspace.dependencies]
-dantzigrs = { version = "0.1.0", path = "crates/dantzigrs" }
 pyo3 = { version = "0.24", features = ["abi3-py313"] }

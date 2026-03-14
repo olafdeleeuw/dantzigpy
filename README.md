@@ -4,44 +4,53 @@ A linear programming library for Python with a high-performance Rust backend, in
 
 ## Architecture
 
-dantzigpy follows the following pattern: the core algorithm lives in a Rust workspace crate and is exposed to Python via [PyO3](https://pyo3.rs) and [maturin](https://www.maturin.rs).
+dantzigpy follows a Pydantic-style layout: the root is a Python workspace managed by [uv](https://docs.astral.sh/uv/), containing two projects — `dantzig_core` (the Rust extension, built with [maturin](https://www.maturin.rs)) and `dantzigpy` (the pure-Python public API, built with [hatchling](https://hatch.pypa.io)).
 
 ```
 dantzigpy/
-├── Cargo.toml                  # Cargo workspace root
-├── crates/
-│   └── dantzigrs/              # Pure Rust core crate (no Python dependency)
-│       └── src/lib.rs          # solve_lp() and future LP solver logic
-└── py-dantzigpy/               # Python package + PyO3 bindings (cdylib)
-    ├── Cargo.toml
-    ├── pyproject.toml          # maturin build config
-    ├── src/lib.rs              # #[pymodule] wrapping dantzigrs
-    └── python/
-        └── dantzigpy/
-            └── __init__.py     # Public Python API
+├── Cargo.toml                      # Cargo workspace root
+├── pyproject.toml                  # Root Python package (dantzigpy) — hatchling build, uv workspace
+├── uv.lock                         # uv workspace lock file
+├── dantzigpy/                      # Pure-Python public API
+│   └── __init__.py                 # Re-exports from dantzig_core
+└── dantzig_core/                   # Rust + PyO3 extension (maturin build)
+    ├── Cargo.toml                  # cdylib crate — workspace member
+    ├── pyproject.toml              # maturin build config
+    ├── python/
+    │   └── dantzig_core/
+    │       └── __init__.py         # Package stub
+    └── src/
+        ├── lib.rs                  # #[pymodule] — PyO3 entry point
+        └── simplex/
+            └── mod.rs              # pub fn solve_lp() and future Simplex logic
 ```
 
 ## Requirements
 
 - [Rust](https://rustup.rs) (stable toolchain)
 - Python 3.13+
-- [maturin](https://www.maturin.rs) (`pip install maturin`)
+- [uv](https://docs.astral.sh/uv/) (`curl -LsSf https://astral.sh/uv/install.sh | sh`)
 
 ## Development Setup
 
 ```bash
 # Clone the repository
 git clone https://github.com/olafdeleeuw/dantzigpy.git
-cd dantzigpy/py-dantzigpy
+cd dantzigpy
 
-# Create and activate a virtual environment
-python -m venv .venv
-source .venv/bin/activate      # Linux / macOS
-# .venv\Scripts\activate       # Windows
+# Install everything (builds the Rust extension automatically)
+uv sync
+```
 
-# Install maturin and build the Rust extension in development mode
-pip install maturin
-maturin develop
+The compiled Rust extension (`dantzig_core._dantzig_core`) is installed as a
+regular package into `.venv` — not into the source tree. There are no generated
+files to commit or clean up manually.
+
+If you ever need to force a rebuild of the Rust extension (e.g. after switching
+branches or modifying `Cargo.toml`):
+
+```bash
+uv sync --reinstall-package dantzig-core
 ```
 
 ## Usage
@@ -53,50 +62,39 @@ result = dantzigpy.solve_lp()
 print(result)  # 42.0  (placeholder — real solver coming soon)
 ```
 
+## Running Tests
+
+```bash
+# Rust unit tests
+cargo test
+
+# Python type checking
+uv run ty check
+```
+
 ## Building for Distribution
 
 ```bash
-# Build a wheel
-maturin build --release
+# Build a wheel for dantzig_core (Rust extension)
+uv build dantzig_core/
 
-# The wheel will be in py-dantzigpy/target/wheels/
-```
-
-## Working with the Rust crate directly
-
-The `dantzigrs` crate can be used as a standalone Rust library, independent of the Python bindings:
-
-```toml
-[dependencies]
-dantzigrs = { path = "crates/dantzigrs" }
-```
-
-```rust
-let result = dantzigrs::solve_lp();
-println!("{}", result);  // 42.0
-```
-
-Run the Rust tests:
-
-```bash
-cargo test
+# Build a wheel for dantzigpy (pure-Python package)
+uv build
 ```
 
 ## Type Checking
 
-Python types are checked with [ty](https://github.com/astral-sh/ty), an extremely fast type checker written in Rust (by Astral, the creators of uv and Ruff).
+Python types are checked with [ty](https://github.com/astral-sh/ty), an extremely fast Python type checker written in Rust. Configuration lives in `pyproject.toml` under `[tool.ty]`.
 
 ```bash
-# Run from py-dantzigpy/ (no install required — uvx fetches ty on demand)
-cd py-dantzigpy
-uvx ty check
+uv run ty check
 ```
 
-Configuration lives in `py-dantzigpy/pyproject.toml` under `[tool.ty]`. The compiled Rust extension (`dantzigpy._dantzigpy`) is listed under `allowed-unresolved-imports` because it only exists after `maturin develop` is run.
+The compiled Rust extension (`dantzig_core._dantzig_core`) is listed under `allowed-unresolved-imports` because it only exists after `uv sync` is run.
 
 ## Roadmap
 
-- [ ] Implement the Simplex algorithm in `dantzigrs`
+- [ ] Implement the Simplex algorithm in `dantzig_core/src/simplex/`
 - [ ] Accept objective function and constraint inputs
 - [ ] Return structured solution objects
 - [ ] Python type stubs (`.pyi`)
