@@ -1,0 +1,9 @@
+[package]
+name = "dantzigrs"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+authors.workspace = true
+description = "Core linear programming solver — Rust backend for dantzigpy"
+
+[dependencies]

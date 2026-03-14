@@ -1,0 +1,13 @@
+[environment]
+python-version = "3.13"
+# The Python source lives under py-dantzigpy/python/
+root = ["py-dantzigpy/python"]
+
+[src]
+# Only type-check the Python package; exclude Rust build artefacts
+include = ["py-dantzigpy/python"]
+
+[analysis]
+# dantzigpy._dantzigpy is the compiled Rust extension; it only exists after
+# `maturin develop` is run. Suppress the unresolved-import diagnostic for it.
+allowed-unresolved-imports = ["dantzigpy._dantzigpy"]

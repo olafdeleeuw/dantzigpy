@@ -1,0 +1,17 @@
+[workspace]
+resolver = "2"
+members = [
+    "crates/*",
+    "py-dantzigpy",
+]
+
+[workspace.package]
+version = "0.1.0"
+edition = "2021"
+license = "MIT"
+authors = ["Olaf de Leeuw <olaf@dataworkz.nl>"]
+repository = "https://github.com/olafdeleeuw/dantzigpy"
+
+[workspace.dependencies]
+dantzigrs = { version = "0.1.0", path = "crates/dantzigrs" }
+pyo3 = { version = "0.24", features = ["abi3-py313"] }

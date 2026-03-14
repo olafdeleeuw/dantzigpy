@@ -1,0 +1,15 @@
+[package]
+name = "py-dantzigpy"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+authors.workspace = true
+description = "Python bindings for dantzigpy — built with maturin and PyO3"
+
+[lib]
+name = "_dantzigpy"
+crate-type = ["cdylib"]
+
+[dependencies]
+dantzigrs = { workspace = true }
+pyo3 = { workspace = true, features = ["extension-module"] }
